@@ -15,4 +15,6 @@ Translate the python code into another programming language using if possible Mu
 
 Export the 3D object as .obj, .stl or ... . 
 
+Center the rotation on the object's center.
+
 Translate all the French words into English ones.
