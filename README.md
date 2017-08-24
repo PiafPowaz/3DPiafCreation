@@ -5,11 +5,13 @@ Free and Open 3D Creation Software. Use the MultiCode file at https://github.com
 
 Pygame and Scipy
 
+# 1.1.0
+
+Allow to use imagex.txt, imagey.txt and imagez.txt to create a 3D object.
+
 # To Do
 
 Convert an image file to binary.
-
-Use a file to generate the 3D object.
 
 Translate the python code into another programming language using if possible MultiCode.
 

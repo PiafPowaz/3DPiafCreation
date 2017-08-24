@@ -65,6 +65,28 @@ def main():
 
 	black_surf, black_rect = makeSquarre(BLACK, size = WINDOWWIDTH*3)
 
+	imagex = []
+	imagey = []
+	imagez = []
+	with open("imagex.txt", 'r') as fx:
+		for line in fx:
+			line_list = list(line)
+			if line_list.count('\n') != 0:
+				line_list.remove('\n')
+			imagex.append(line_list)
+	with open("imagey.txt", 'r') as fy:
+		for line in fy:
+			line_list = list(line)
+			if line_list.count('\n') != 0:
+				line_list.remove('\n')
+			imagey.append(line_list)
+	with open("imagez.txt", 'r') as fz:
+		for line in fz:
+			line_list = list(line)
+			if line_list.count('\n') != 0:
+				line_list.remove('\n')
+			imagez.append(line_list)
+
 	ob = Objet3D()
 	ob.contour_axe(axe = 'x', image = imagex)
 	ob.contour_axe(axe = 'y', image = imagey)
@@ -199,31 +221,6 @@ class Barre(Image):
 		for point in range(self.longueur):
 			fenetre.blit(self.points_surf[point], self.points_rect[point])
 
-imagex = [
-		[1,1,1,1,1,1,1],
-		[1,1,1,1,1,1,1],
-		[0,0,0,0,0,0,0],
-		[0,0,0,0,0,0,0],
-		[0,0,0,0,0,0,0],
-		[0,0,0,0,0,0,0],
-		[0,0,0,0,0,0,0]]
-imagey = [
-		[0,0,0,0,1,1,1],
-		[0,0,0,0,1,1,0],
-		[0,0,0,0,0,0,0],
-		[0,0,0,0,0,0,0],
-		[0,0,0,0,0,0,0],
-		[0,0,0,0,0,0,0],
-		[0,0,0,0,0,0,0]]
-imagez = [
-		[0,0,0,0,1,1,1],
-		[0,0,0,0,1,1,1],
-		[0,0,0,0,1,1,1],
-		[0,0,0,0,1,0,1],
-		[0,0,0,0,1,1,1],
-		[0,0,0,0,1,1,1],
-		[0,0,0,0,1,1,1]]
-
 class Objet3D():
 	def __init__(self, x = 0, y = 0, z = 0):
 		self.x = x
@@ -245,7 +242,7 @@ class Objet3D():
 				contour_trans = self.contourz[:]
 			for y in range(len(image)):
 				for x in range(len(image[0])):
-					if image[y][x] == 1:
+					if image[y][x] == '1':
 						coord.append([x,y])
 			#print(len(contour_trans))
 			#for point in self.contour:
