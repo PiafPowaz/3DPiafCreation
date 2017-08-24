@@ -14,3 +14,5 @@ Use a file to generate the 3D object.
 Translate the python code into another programming language using if possible MultiCode.
 
 Export the 3D object as .obj, .stl or ... . 
+
+Translate all the French words into English ones.
