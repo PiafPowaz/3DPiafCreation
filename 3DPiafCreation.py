@@ -14,10 +14,7 @@ middlewheight = WINDOWWHEIGHT/2
 #
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-GREEN = (0, 204, 0)
-BLUE =  (0, 0, 204)
-BLUE2 = (0, 0, 180)
-BLUE3 = (0, 0, 150)
+GREEN = (0, 255, 0)
 
 def makeText(text, color, bgcolor, top, left, size = 32):
 	BASICFONT = pygame.font.Font("bkant.ttf", size)
@@ -82,16 +79,13 @@ def main():
 	continuer = 1
 	press = False
 	r = v = b = 0
-	timeactu = sequence_actu = 0
 	list_points = []
 	for point in ob.contourx:
-		list_points.append(Point((0,0,255), angle = 0, x = point[0]*10+ middlehight, y = point[1]*10 + middlewheight, size = 8))
+		list_points.append(Point((0,0,255), x = point[0]*10+ middlehight, y = point[1]*10 + middlewheight, size = 8))
 	while continuer:
 		for event in pygame.event.get():    #Attente des événements
 			if event.type == QUIT:
 				continuer = 0
-			if event.type == MOUSEBUTTONUP and event.button == 3 and event.pos[1] < 100:
-				print ("Zone dangereuse")
 			if event.type == MOUSEBUTTONDOWN:
 				if QUIT_RECT.collidepoint(event.pos):
 					continuer = 0
@@ -135,7 +129,7 @@ def main():
 					for point in ob.contour:
 						posx = point.x*sin(cam.phi) + point.y*cos(cam.phi)
 						posy = point.y*cos(cam.theta) + point.z*sin(cam.theta)
-						list_points.append(Point((0,0,255), angle = 0, x = posx*10+ middlehight, y = posy*10 + middlewheight, size = 8))
+						list_points.append(Point((0,0,255), x = posx*10+ middlehight, y = posy*10 + middlewheight, size = 8))
 		#Re-collage
 		fenetre.blit(black_surf, black_rect)
 		fenetre.blit(TEXT_SURF, (TEXT_RECT))
@@ -161,19 +155,12 @@ class Image():
 			fenetre.blit(surf, rect)
 
 class Point(Image):
-	def __init__(self, color = (0,0,0), angle = 0, x = 0, y = 0, size = 2):
+	def __init__(self, color = (0,0,0), x = 0, y = 0, size = 2):
 		self.color = color
 		self.size = size
 		self.surf, self.rect = makeSquarre(color, size = self.size, middlehight = x, middlewheight = y )
-		self.time_number = 0
-		self.angle = angle
-		self.speed = 3
 		self.x = x
 		self.y = y
-
-	def actTime(self):
-		self.time_number += 1
-		self.rect.center = (WINDOWWIDTH/2 + self.speed*cos(self.angle)*self.time_number, WINDOWWHEIGHT/2 + self.speed*sin(self.angle)*self.time_number)
 
 class Arc(Image):
 	def __init__(self, rayon = 1):
@@ -368,12 +355,5 @@ class Camera:
 	def Rot(self, dphi = 0, dtheta = 0):
 		self.phi += dphi
 		self.theta += dtheta
-
-	def RotAxe(self, axe = 'x'):
-		self.phi = 0
-		self.theta = detheta
-		self.x = self.x*cos(self.phi)
-		self.y = self.y*sin(self.phi)
-		self.z = self.z*cos(self.theta)
 
 main()
