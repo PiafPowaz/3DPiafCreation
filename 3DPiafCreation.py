@@ -57,9 +57,10 @@ def main():
 	TEXTCOLOR = WHITE
 
 	BASICFONT = pygame.font.Font("bkant.ttf", 32)
+	axe = 'x'
 
 	QUIT_SURF, QUIT_RECT = makeText('QUIT', TEXTCOLOR, TILECOLOR, WINDOWWIDTH - 120, WINDOWWHEIGHT - 90)
-	TEXT_SURF = BASICFONT.render('x', True, TEXTCOLOR)
+	TEXT_SURF = BASICFONT.render(axe, True, TEXTCOLOR)
 	TEXT_RECT = TEXT_SURF.get_rect()
 	TEXT_RECT.center = (110, 15)
 
@@ -68,33 +69,51 @@ def main():
 	imagex = []
 	imagey = []
 	imagez = []
+	fx = open("imagex.txt", 'a')
+	fx.close()
 	with open("imagex.txt", 'r') as fx:
 		for line in fx:
 			line_list = list(line)
 			if line_list.count('\n') != 0:
 				line_list.remove('\n')
 			imagex.append(line_list)
+		if imagex == []:
+			imagex = None
+	fy = open("imagez.txt", 'a')
+	fy.close()
 	with open("imagey.txt", 'r') as fy:
 		for line in fy:
 			line_list = list(line)
 			if line_list.count('\n') != 0:
 				line_list.remove('\n')
 			imagey.append(line_list)
+		if imagey == []:
+			imagey = None
+	fz = open("imagez.txt", 'a')
+	fz.close()
 	with open("imagez.txt", 'r') as fz:
 		for line in fz:
 			line_list = list(line)
 			if line_list.count('\n') != 0:
 				line_list.remove('\n')
 			imagez.append(line_list)
-
+		if imagez == []:
+			imagez = None
+	#print(imagex)
+	#print(imagey)
+	#print(imagez)
 	ob = Objet3D()
 	ob.contour_axe(axe = 'x', image = imagex)
 	ob.contour_axe(axe = 'y', image = imagey)
 	ob.contour_axe(axe = 'z', image = imagez)
 	#for point in ob.contour:
 	#	print([point.x, point.y, point.z])
-	#print(len(ob.contour))
-	cam = Camera() 
+	cam = Camera()
+
+	zoom = 10
+	dzoom = 1
+	zoomx = zoom/WINDOWWIDTH
+	zoomy = zoom/WINDOWWHEIGHT
 
 	pygame.key.set_repeat(400, 30)
 	#BOUCLE INFINIE
@@ -103,7 +122,7 @@ def main():
 	r = v = b = 0
 	list_points = []
 	for point in ob.contourx:
-		list_points.append(Point((0,0,255), x = point[0]*10+ middlehight, y = point[1]*10 + middlewheight, size = 8))
+		list_points.append(Point((0,0,255), x = point[0]*zoomx+ middlehight, y = point[1]*zoomy + middlewheight, size = 8))
 	while continuer:
 		for event in pygame.event.get():    #Attente des événements
 			if event.type == QUIT:
@@ -144,14 +163,43 @@ def main():
 					axe = 'None'
 					cam.Rot(dtheta=pi/180)
 					press = True
+				if key[pygame.K_b]:
+					zoom -= dzoom
+					if zoom <= 0:
+						zoom = 1
+					zoomx = zoom/WINDOWWIDTH
+					zoomy = zoom/WINDOWWHEIGHT
+					press = True
+				if key[pygame.K_n]:
+					zoom += dzoom
+					if zoom >= 480:
+						zoom = 480
+					zoomx = zoom/WINDOWWIDTH
+					zoomy = zoom/WINDOWWHEIGHT
+					press = True
+				if key[pygame.K_v]:
+					dzoom += 1
+					if dzoom >= 480:
+						dzoom = 480
+				if key[pygame.K_c]:
+					dzoom -= 1
+					if dzoom <= 1:
+						dzoom = 1
+				if key[pygame.K_o]:
+					ob.minimizeContour()
+				if key[pygame.K_l]:
+					ob.Load()
+				if key[pygame.K_s]:
+					ob.Save()
 				if press:
-					TEXT_SURF = BASICFONT.render(axe, True, TEXTCOLOR)
+					TEXT_SURF = BASICFONT.render(axe + str('%d' %zoom), True, TEXTCOLOR)
 					press = False
 					list_points = []
 					for point in ob.contour:
-						posx = point.x*sin(cam.phi) + point.y*cos(cam.phi)
-						posy = point.y*cos(cam.theta) + point.z*sin(cam.theta)
-						list_points.append(Point((0,0,255), x = posx*10+ middlehight, y = posy*10 + middlewheight, size = 8))
+						if point.x != None and point.y != None and point.z != None:
+							posx = point.x*sin(cam.phi) + point.y*cos(cam.phi)
+							posy = point.y*cos(cam.theta) + point.z*sin(cam.theta)
+							list_points.append(Point((0,0,255), x = posx*zoomx+ middlehight, y = posy*zoomy + middlewheight, size = 8))
 		#Re-collage
 		fenetre.blit(black_surf, black_rect)
 		fenetre.blit(TEXT_SURF, (TEXT_RECT))
@@ -227,6 +275,7 @@ class Objet3D():
 		self.y = y
 		self.z = z
 		self.contour = []
+		self.contour_opti = False
 		self.contourx, self.contoury, self.contourz = None, None, None
 
 	def contour_axe(self, axe = 'x', image=None):
@@ -343,6 +392,69 @@ class Objet3D():
 								found = True
 						if not found:
 							self.contour.append(Objet3D(x = x, y = y, z = z))
+		else:
+			print(axe, image)
+
+	def Save(self, name = "Save"):
+		if not self.contour_opti:
+			self.file = open(name + "_ori.3DPiaf", 'w')
+		else:
+			self.file = open(name + ".3DPiaf", 'w')
+		for point in self.contour:
+			self.file.write(str('%d' %point.x) + ',' +  str('%d' %point.y) + ',' +str('%d' %point.z) + '\n')
+		self.file.close()
+		print("File Saved")
+
+	def Load(self, name = "Save"):
+		self.file = open(name + ".3DPiaf", 'r')
+		self.contour = []
+		for line in self.file:
+			if len(line.split(',')) >= 2:
+				x, y, z = line.split(',')[:3]
+				self.contour.append(Objet3D(x = float(x), y = float(y), z = float(z)))
+		self.file.close()
+		print("File Loaded")
+
+	def minimizeContour(self):
+		self.contour_remove = []
+		nbpoint = 0
+		totnbpoint = len(self.contour)
+		chargement = 0
+		print(totnbpoint, " initials points")
+		for point in self.contour:
+			prox = 0
+			nbpoint += 1
+			if nbpoint//(totnbpoint/100) > chargement:
+				chargement = nbpoint//(totnbpoint/100)
+				print('Loading : ', chargement, '%')
+			if point.x == None or point.y == None or point.z == None:
+				self.contour_remove.append(point)
+			else:
+				for proximal_point in self.contour:
+					sens = 1
+					if proximal_point.x != None and proximal_point.y != None and proximal_point.z != None:
+						for i in range(2):
+							if proximal_point.x == point.x and proximal_point.y == point.y and proximal_point.z + sens == point.z:
+								prox += 1
+							if proximal_point.x == point.x and proximal_point.y + sens == point.y and proximal_point.z == point.z:
+								prox += 1
+							if proximal_point.x + sens == point.x and proximal_point.y == point.y and proximal_point.z == point.z:
+								prox += 1
+							sens *= -1
+						if prox >= 6:
+							self.contour_remove.append(point)
+							break
+		nbpoint = chargement = 0
+		totnbpoint = len(self.contour_remove)
+		print('Remove', totnbpoint, 'points')
+		for point in self.contour_remove:
+			self.contour.remove(point)
+			nbpoint += 1
+			if nbpoint//(totnbpoint/100) > chargement:
+				chargement = nbpoint//(totnbpoint/100)
+				print('Remove Loading : ', chargement, '%')
+		print('Now', len(self.contour), 'points')
+		self.contour_opti = True
 
 class Camera:
 	def __init__(self, phi = 0, theta = pi/2):
