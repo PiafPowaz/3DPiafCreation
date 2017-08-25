@@ -79,7 +79,7 @@ def main():
 			imagex.append(line_list)
 		if imagex == []:
 			imagex = None
-	fy = open("imagez.txt", 'a')
+	fy = open("imagey.txt", 'a')
 	fy.close()
 	with open("imagey.txt", 'r') as fy:
 		for line in fy:
@@ -112,8 +112,8 @@ def main():
 
 	zoom = 10
 	dzoom = 1
-	zoomx = zoom/WINDOWWIDTH
-	zoomy = zoom/WINDOWWHEIGHT
+	zoomx = zoom#/WINDOWWIDTH
+	zoomy = zoom#/WINDOWWHEIGHT
 
 	pygame.key.set_repeat(400, 30)
 	#BOUCLE INFINIE
@@ -122,7 +122,7 @@ def main():
 	r = v = b = 0
 	list_points = []
 	for point in ob.contourx:
-		list_points.append(Point((0,0,255), x = point[0]*zoomx+ middlehight, y = point[1]*zoomy + middlewheight, size = 8))
+		list_points.append(Point((0,0,255), x = point[0]*zoomx+ middlehight, y = point[1]*zoomy + middlewheight, size = zoom))
 	while continuer:
 		for event in pygame.event.get():    #Attente des événements
 			if event.type == QUIT:
@@ -165,17 +165,17 @@ def main():
 					press = True
 				if key[pygame.K_b]:
 					zoom -= dzoom
-					if zoom <= 0:
-						zoom = 1
-					zoomx = zoom/WINDOWWIDTH
-					zoomy = zoom/WINDOWWHEIGHT
+					if zoom <= 1:
+						zoom = 2
+					zoomx = zoom#/WINDOWWIDTH
+					zoomy = zoom#/WINDOWWHEIGHT
 					press = True
 				if key[pygame.K_n]:
 					zoom += dzoom
 					if zoom >= 480:
 						zoom = 480
-					zoomx = zoom/WINDOWWIDTH
-					zoomy = zoom/WINDOWWHEIGHT
+					zoomx = zoom#/WINDOWWIDTH
+					zoomy = zoom#/WINDOWWHEIGHT
 					press = True
 				if key[pygame.K_v]:
 					dzoom += 1
@@ -188,9 +188,58 @@ def main():
 				if key[pygame.K_o]:
 					ob.minimizeContour()
 				if key[pygame.K_l]:
-					ob.Load()
+					ob.Load(name = raw_input("Load :"))
 				if key[pygame.K_s]:
-					ob.Save()
+					ob.Save(name = raw_input("Save to :"))
+				if key[pygame.K_i]:
+					ConvertImageToBinary()
+				if key[pygame.K_TAB]:
+					namex = raw_input("Name imagex:")
+					namey = raw_input("Name imagey:")
+					namez = raw_input("Name imagez:")
+					imagex = []
+					imagey = []
+					imagez = []
+					if namex == 'None':
+						imagex = None
+					else:
+						fx = open(namex, 'a')
+						fx.close()
+						with open(namex, 'r') as fx:
+							for line in fx:
+								line_list = list(line)
+								if line_list.count('\n') != 0:
+									line_list.remove('\n')
+								imagex.append(line_list)
+							if imagex == []:
+								imagex = None
+					if namey == 'None':
+						imagey = None
+					else:
+						fy = open(namey, 'a')
+						fy.close()
+						with open(namey, 'r') as fy:
+							for line in fy:
+								line_list = list(line)
+								if line_list.count('\n') != 0:
+									line_list.remove('\n')
+								imagey.append(line_list)
+							if imagey == []:
+								imagey = None
+					if namez == 'None':
+						imagez = None
+					else:
+						fz = open(namez, 'a')
+						fz.close()
+						with open(namez, 'r') as fz:
+							for line in fz:
+								line_list = list(line)
+								if line_list.count('\n') != 0:
+									line_list.remove('\n')
+								imagez.append(line_list)
+							if imagez == []:
+								imagez = None
+					ob.LoadNewImages(imagex = imagex, imagey = imagey, imagez = imagez) 
 				if press:
 					TEXT_SURF = BASICFONT.render(axe + str('%d' %zoom), True, TEXTCOLOR)
 					press = False
@@ -199,7 +248,7 @@ def main():
 						if point.x != None and point.y != None and point.z != None:
 							posx = point.x*sin(cam.phi) + point.y*cos(cam.phi)
 							posy = point.y*cos(cam.theta) + point.z*sin(cam.theta)
-							list_points.append(Point((0,0,255), x = posx*zoomx+ middlehight, y = posy*zoomy + middlewheight, size = 8))
+							list_points.append(Point((0,0,255), x = posx*zoomx+ middlehight, y = posy*zoomy + middlewheight, size = zoom))
 		#Re-collage
 		fenetre.blit(black_surf, black_rect)
 		fenetre.blit(TEXT_SURF, (TEXT_RECT))
@@ -397,7 +446,7 @@ class Objet3D():
 
 	def Save(self, name = "Save"):
 		if not self.contour_opti:
-			self.file = open(name + "_ori.3DPiaf", 'w')
+			self.file = open(name + ".3DPiaf", 'w')
 		else:
 			self.file = open(name + ".3DPiaf", 'w')
 		for point in self.contour:
@@ -420,7 +469,6 @@ class Objet3D():
 		nbpoint = 0
 		totnbpoint = len(self.contour)
 		chargement = 0
-		print(totnbpoint, " initials points")
 		for point in self.contour:
 			prox = 0
 			nbpoint += 1
@@ -446,15 +494,26 @@ class Objet3D():
 							break
 		nbpoint = chargement = 0
 		totnbpoint = len(self.contour_remove)
-		print('Remove', totnbpoint, 'points')
 		for point in self.contour_remove:
 			self.contour.remove(point)
 			nbpoint += 1
 			if nbpoint//(totnbpoint/100) > chargement:
 				chargement = nbpoint//(totnbpoint/100)
 				print('Remove Loading : ', chargement, '%')
+		print(totnbpoint, " initials points")
+		print(totnbpoint, 'removed points')
 		print('Now', len(self.contour), 'points')
 		self.contour_opti = True
+	def LoadNewImages(self, imagex = None, imagey = None, imagez = None):
+		self.contour = []
+		self.contour_opti = False
+		self.contourx, self.contoury, self.contourz = None, None, None
+		if imagex != None:
+			self.contour_axe(axe = 'x', image=imagex)
+		if imagey != None:
+			self.contour_axe(axe = 'y', image=imagey)
+		if imagez != None:
+			self.contour_axe(axe = 'z', image=imagez)
 
 class Camera:
 	def __init__(self, phi = 0, theta = pi/2):
@@ -464,5 +523,28 @@ class Camera:
 	def Rot(self, dphi = 0, dtheta = 0):
 		self.phi += dphi
 		self.theta += dtheta
+
+def ConvertImageToBinary():
+	name = raw_input("png name:")
+	nameNoExt = name.split('.')[0]
+	import cv2
+	import numpy as np
+	img = cv2.imread(name,0)
+	ret,thresh_img = cv2.threshold(img,250,255,cv2.THRESH_BINARY)
+	nbpoint = 0
+	bin_file = open(nameNoExt+'.txt', 'w')
+	nbline = 0
+	for line in thresh_img:
+		for point in line:
+			nbpoint += 1
+			bin_point = '0'
+			if point == 0:
+				bin_point = '1'
+			bin_file.write(bin_point)
+		nbline +=1
+		if nbline < len(thresh_img):
+			bin_file.write('\n')
+	bin_file.close()
+	print(nbpoint)
 
 main()
