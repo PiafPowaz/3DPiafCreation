@@ -193,6 +193,8 @@ def main():
 					ob.Save(name = raw_input("Save to :"))
 				if key[pygame.K_i]:
 					ConvertImageToBinary()
+				if key[pygame.K_e]:
+					ExportToObj(ob)
 				if key[pygame.K_TAB]:
 					namex = raw_input("Name imagex:")
 					namey = raw_input("Name imagey:")
@@ -493,15 +495,15 @@ class Objet3D():
 							self.contour_remove.append(point)
 							break
 		nbpoint = chargement = 0
-		totnbpoint = len(self.contour_remove)
+		totnbpoint2 = len(self.contour_remove)
 		for point in self.contour_remove:
 			self.contour.remove(point)
 			nbpoint += 1
 			if nbpoint//(totnbpoint/100) > chargement:
-				chargement = nbpoint//(totnbpoint/100)
+				chargement = nbpoint//(totnbpoint2/100)
 				print('Remove Loading : ', chargement, '%')
 		print(totnbpoint, " initials points")
-		print(totnbpoint, 'removed points')
+		print(totnbpoint2, 'removed points')
 		print('Now', len(self.contour), 'points')
 		self.contour_opti = True
 	def LoadNewImages(self, imagex = None, imagey = None, imagez = None):
@@ -546,5 +548,19 @@ def ConvertImageToBinary():
 			bin_file.write('\n')
 	bin_file.close()
 	print(nbpoint)
+
+def ExportToObj(ob):
+	import numpy
+	from pymesh_mod import obj
+
+	mesh_ori = obj.Obj()
+	translate = 2
+	for point in ob.contour:
+		mesh = obj.Obj("Cube.obj")
+		mesh.translate_x(translate*point.x)
+		mesh.translate_y(translate*point.y)
+		mesh.translate_z(translate*point.z)
+		mesh_ori.join(mesh)
+	mesh_ori.save_obj(raw_input("Name of .obj without .obj:")+'.obj')
 
 main()
