@@ -11,6 +11,10 @@ Pygame and Scipy
 
 - Pymesh from https: //github.com/taxpon/pymesh : to export the 3D Object as .obj and .stl 
 
+# 1.4.1
+
+- Lots of updates.
+
 # 1.4.0
 
 ## New feature :
