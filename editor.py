@@ -4,7 +4,7 @@
 import pygame
 from pygame.locals import *
 
-from used import *
+from utils import *
 
 
 def mainEditor(fenetre, imagex, imagey, imagez):
@@ -17,7 +17,7 @@ def mainEditor(fenetre, imagex, imagey, imagez):
 			posy = point.y*cos(cam.theta) + point.z*sin(cam.theta)
 			list_points.append(Point((0,0,255), x = posx*zoomx+ middlehight, y = posy*zoomy + middlewheight, size = zoom))
 	"""
-	black_surf, black_rect = makeSquarre(BACK, size = WINDOWWIDTH*3)
+	black_surf, black_rect = makeSquarre(BACK, h = WINDOWWHEIGHT, w = WINDOWWIDTH)
 	IMAGEX_SURF, IMAGEX_RECT = makeText('X', TEXTCOLOR, TILECOLOR, WINDOWWIDTH/2 - 250, 40)
 	IMAGEY_SURF, IMAGEY_RECT = makeText('Y', TEXTCOLOR, TILECOLOR, WINDOWWIDTH/2 - 150, 40)
 	IMAGEZ_SURF, IMAGEZ_RECT = makeText('Z', TEXTCOLOR, TILECOLOR, WINDOWWIDTH/2 - 30, 40)
@@ -87,7 +87,7 @@ def drawImage(fenetre, image):
 		list_points.append(Point((0,0,255), x = (int(point[0])+1)*10, y = (int(point[1])+1)*10, size = 10))
 		newImage[int(point[1])][int(point[0])] = '1'
 	continuer = 1
-	black_surf, black_rect = makeSquarre(BACK, size = WINDOWWIDTH*3)
+	black_surf, black_rect = makeSquarre(BACK, h = WINDOWWHEIGHT, w = WINDOWWIDTH)
 	create_down = False
 	erase_down = False
 	while continuer:

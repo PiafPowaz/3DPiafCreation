@@ -332,4 +332,3 @@ class BaseMesh(object):
 					faces[1], normal,
 					faces[2], normal,
 				))
-
